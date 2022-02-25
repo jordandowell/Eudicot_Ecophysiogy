@@ -3,6 +3,7 @@ library("lubridate")
 library(lattice)
 library(ggplot2)
 library(dplyr)
+library(forcats)
 #importdata
 
 #Plant id info
@@ -28,32 +29,47 @@ PlantNameData$Date<-as.Date(PlantNameData$Date, format = "%d-%b")
 
 
 #plot of all species by day 
-xyplot(RGR_numberofleaves ~ Day|Plant, data = PlantNameData,
-       groups = Genotype, pch = 16, cex = 0.5)
+xyplot(numberofleaves ~ Day|Plant, data = PlantNameData,
+       groups = PlantNameData$Genotype, pch = 16, cex = 0.5)
+xyplot(AGR_plantheightcm ~ Day|Plant, data = PlantNameData,
+       groups = PlantNameData$Genotype, pch = 16, cex = 0.5)
 
 
-#plot summary of relative growth rate across species 
-plot(PlantNameData$Day,PlantNameData$plantheightcm)
 
 
 
 # Create a group-means data set
 gd <- PlantNameData %>% 
-  group_by(Genotype) %>% 
+  group_by(Plant.ID) %>% 
   summarise(
-    VAR1 = mean(plantheightcm),
-    VAR2 = mean(RGR_plantheightcm)
+    MEAN_plantheightcm = mean(plantheightcm[plantheightcm !=0], na.rm = TRUE),
+    MEAN_AGR_plantheightcm = mean(AGR_plantheightcm[AGR_plantheightcm != 0], na.rm = TRUE),
+    MEAN_numberofleaves = mean(numberofleaves[numberofleaves !=0], na.rm = TRUE),
+    MEAN_AGR_numberofleaves = mean(AGR_numberofleaves[AGR_numberofleaves != 0], na.rm = TRUE)
+    
   )
 
+#add other plant data 
+Plant.gd<-merge(PlantNames,gd,by.x = "Plant.ID",by.y = "Plant.ID")
+
+
+#relevel factor of genotype
+Plant.gd$Genotype <- factor(Plant.gd$Genotype, levels = unique(Plant.gd$Genotype[order(Plant.gd$Plant)]))
+
+
+
 # Plot both data sets
-ggplot(PlantNameData) +
-  geom_*() +
-  geom_*(data = gd)
 
 
-ggplot(gd, aes(x = Genotype, y = VAR2))# +
-  geom_bar(stat = "identity")
 
+Plant.gd %>%
+  ggplot(aes(col=Plant, y=MEAN_plantheightcm, x=Genotype) )+ 
+  geom_point(position="dodge", stat = "identity") + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
+Plant.gd %>%
+  ggplot(aes(col=Plant, y=MEAN_AGR_numberofleaves, x=Genotype) )+ 
+  geom_point(position="dodge", stat = "identity") + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
 
 
