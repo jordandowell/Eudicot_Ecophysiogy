@@ -30,9 +30,9 @@ PlantNameData$Date<-as.Date(PlantNameData$Date, format = "%d-%b")
 
 #plot of all species by day 
 xyplot(numberofleaves ~ Day|Plant, data = PlantNameData,
-       groups = PlantNameData$Genotype, pch = 16, cex = 0.5)
+       groups = PlantNameData$Genotype, pch = 1, cex = 1.5,jitter=100)
 xyplot(AGR_plantheightcm ~ Day|Plant, data = PlantNameData,
-       groups = PlantNameData$Genotype, pch = 16, cex = 0.5)
+       groups = PlantNameData$Genotype, pch = 1, cex = 1,jitter=100)
 
 
 
@@ -73,4 +73,4 @@ Plant.gd %>%
 
 
 
-
+Plant.gd$Mean_AGR_plantheightcm
